@@ -24,7 +24,9 @@
 ```
 
 `asterisk/` - Asterisk dialplan examples
+
 `ansible/` - Ansible playbooks used in the presentation
+
 `call_generating_scripts/` - Bash/Python scripts for generating calls
 
 
