@@ -1,4 +1,5 @@
 # Commands and code snippets used in the presentation on Astericon 2025
+[Presentation. Asterisk as VoIP testing framework.](https://docs.google.com/presentation/d/e/2PACX-1vSKqdO_3McwfXZM5lCMDGwBlSO6aPtcdxQK-hi3iW89oz0eKwOa2eYjQp6SFHeVWQ/pub?start=false&loop=false&delayms=3000)
 ### Directory structure
 ```bash
 .
