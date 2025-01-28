@@ -1,0 +1,56 @@
+#include pjsip_custom.conf
+[transport-udp]
+type=transport
+protocol=udp
+bind=0.0.0.0
+
+
+{% for user in list_users %}
+
+[transport-udp-{{ user[0] }}]
+type=transport
+protocol=udp
+bind=0.0.0.0:{{ 5000 + user[0] | int }}
+
+
+[{{ user[0] }}]
+type=registration
+outbound_auth={{ user[0] }}-auth
+server_uri=sip:{{ sip_service }}
+client_uri=sip:{{ user[0] }}@{{ sip_service }}
+contact_user={{ contact_prefix | random }}{{ range(100000000, 900000000) | random }}
+user_agent={{ user_agents | random }}
+max_random_initial_delay=0
+expiration={{ range(10, 4000) | random }}
+retry_interval=1
+max_retries=999999
+auth_rejection_permanent=no
+transport=transport-udp-{{ user[0] }}
+
+
+[{{ user[0] }}-auth]
+type=auth
+auth_type=userpass
+username={{ user[0] }}
+password={{ user[1] }}
+
+[{{ user[0] }}]
+type=aor
+contact=sip:{{ sip_service }}
+
+[{{ user[0] }}-endpoint]
+type=endpoint
+context=from-internal
+allow=!all,alaw,ulaw
+outbound_auth={{ user[0] }}-auth
+aors={{ user[0] }}
+transport=transport-udp-{{ user[0] }}
+
+
+{% endfor %}
+
+
+[1000-identify]
+type=identify
+endpoint=1000-endpoint
+match={{ sip_service }}

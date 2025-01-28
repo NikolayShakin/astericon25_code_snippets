@@ -1,0 +1,63 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - git
+          - wget
+          - sngrep
+          - build-essential
+          - libncurses5-dev
+          - libssl-dev
+          - libxml2-dev
+          - libsqlite3-dev
+          - uuid-dev
+          - libjansson-dev
+          - libsrtp2-dev
+          - libspandsp-dev
+          - libedit-dev
+          - libtiff-dev
+        state: present
+
+    - name: Remove old source
+      ansible.builtin.file:
+        path: /usr/src/asterisk
+        state: absent
+
+    - name: Create Asterisk source directory
+      ansible.builtin.file:
+        path: /usr/src/asterisk
+        state: directory
+
+    - name: Git clone Asterisk source
+      ansible.builtin.git:
+        repo: https://github.com/asterisk/asterisk.git
+        dest: /usr/src/asterisk
+        version: 22.1.1
+
+    - name: Configure Asterisk
+      ansible.builtin.command: ./configure
+      args:
+        chdir: /usr/src/asterisk
+
+    - name: Build Asterisk
+      community.general.make:
+        chdir: /usr/src/asterisk
+        target: "{{ item }}"
+      loop:
+        - install
+        - samples
+        - config
+
+
+    - name: Enable Asterisk service
+      ansible.builtin.systemd:
+        name: asterisk
+        enabled: true
+        state: started

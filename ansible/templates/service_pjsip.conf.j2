@@ -1,0 +1,32 @@
+#include pjsip_custom.conf
+[global]
+type=global
+user_agent=MyFancySIPservice
+
+[transport-udp]
+type=transport
+protocol=udp
+bind=0.0.0.0
+
+{% for user in list_users %}
+[{{ user[0] }}]
+type=endpoint
+context=from-internal
+auth={{ user[0] }}-auth
+aors={{ user[0] }}
+disallow=all
+allow=ulaw,alaw
+direct_media=no
+
+[{{ user[0] }}-auth]
+type=auth
+auth_type=userpass
+password={{ user[1] }}
+username={{ user[0] }}
+
+[{{ user[0] }}]
+type=aor
+max_contacts=1
+remove_existing=yes
+
+{% endfor %}

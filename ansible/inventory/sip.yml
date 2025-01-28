@@ -1,0 +1,9 @@
+---
+sip:
+  hosts:
+    sip-service:
+      ansible_host: 1.1.1.1
+    sip-tester:
+      ansible_host: 2.2.2.2
+  vars:
+    ansible_port: 22

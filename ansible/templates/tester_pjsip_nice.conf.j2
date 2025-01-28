@@ -1,0 +1,39 @@
+#include pjsip_custom.conf
+[transport-udp]
+type=transport
+protocol=udp
+bind=0.0.0.0
+
+
+{% for user in list_users %}
+[{{ user[0] }}]
+type=registration
+outbound_auth={{ user[0] }}-auth
+server_uri=sip:{{ sip_service }}
+client_uri=sip:{{ user[0] }}@{{ sip_service }}
+contact_user={{ user[0] }}
+
+[{{ user[0] }}-auth]
+type=auth
+auth_type=userpass
+username={{ user[0] }}
+password={{ user[1] }}
+
+[{{ user[0] }}]
+type=aor
+contact=sip:{{ sip_service }}
+
+[{{ user[0] }}-endpoint]
+type=endpoint
+context=from-internal
+allow=!all,alaw,ulaw
+outbound_auth={{ user[0] }}-auth
+aors={{ user[0] }}
+
+
+{% endfor %}
+
+[1000-identify]
+type=identify
+endpoint=1000-endpoint
+match={{ sip_service }}

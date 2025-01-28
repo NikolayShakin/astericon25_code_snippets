@@ -1,0 +1,53 @@
+---
+- name: Configure SIP tester
+  hosts: sip-tester
+  gather_facts: false
+  vars:
+    user_agents:
+      - TESTER
+      - Grandstream
+      - Yealink
+      - Cisco
+      - Sipvicious
+      - Siparmyknife
+      - Sipsak
+      - Friendly-scanner
+    contact_prefix:
+      - test
+      - ''
+      - 's'
+      - '+'
+    sip_service: "{{ hostvars['sip-service']['ansible_host'] }}"
+
+  tasks:
+    - name: Read usernames and passwords pairs from users.csv on localhost
+      ansible.builtin.shell: cat ../users.csv
+      register: sip_users
+      delegate_to: localhost
+
+    - name: Save usernames and passwords pairs to a list
+      ansible.builtin.set_fact:
+        list_users: "{{ sip_users.stdout_lines | map('split',',') | map('list') | list }}"
+
+    - name: Create pjsip.conf
+      ansible.builtin.template:
+        src: ../templates/tester_pjsip.conf.j2
+        dest: /etc/asterisk/pjsip.conf
+        owner: root
+        group: root
+        mode: 0644
+      when: nice is not defined or not nice
+
+    - name: Create nice pjsip.conf
+      ansible.builtin.template:
+        src: ../templates/tester_pjsip_nice.conf.j2
+        dest: /etc/asterisk/pjsip.conf
+        owner: root
+        group: root
+        mode: 0644
+      when: nice is defined and nice
+
+    - name: Restart asterisk
+      ansible.builtin.systemd:
+        service: asterisk
+        state: restarted

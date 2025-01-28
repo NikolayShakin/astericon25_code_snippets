@@ -1,0 +1,28 @@
+---
+- name: Configure SIP service
+  hosts: sip-service
+  gather_facts: false
+  vars:
+    sip_tester: "{{ hostvars['sip-tester']['ansible_host'] }}"
+  tasks:
+    - name: Read usernames and passwords pairs from users.csv on localhost
+      ansible.builtin.shell: cat ../users.csv
+      register: sip_users
+      delegate_to: localhost
+
+    - name: Save usernames and passwords pairs to a list
+      ansible.builtin.set_fact:
+        list_users: "{{ sip_users.stdout_lines | map('split',',') | map('list') | list }}"
+
+    - name: Create pjsip.conf
+      ansible.builtin.template:
+        src: ../templates/service_pjsip.conf.j2
+        dest: /etc/asterisk/pjsip.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Restart asterisk
+      ansible.builtin.systemd:
+        service: asterisk
+        state: restarted
