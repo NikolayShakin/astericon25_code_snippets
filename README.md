@@ -1,5 +1,5 @@
 # Commands and code snippets used in the presentation on Astericon 2025
-###Directory structure
+### Directory structure
 ```bash
 .
 ├── README.md
